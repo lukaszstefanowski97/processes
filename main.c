@@ -14,23 +14,11 @@ int isPowerOfTwo(int number) {
     return 0;
 }
 
-int calculatePathLength(int stringLength) {
-    int pathLength = stringLength;
-    if (isPowerOfTwo(stringLength) == 1) {
-        pathLength = pathLength + 2;
-        --stringLength;
-    } else if (stringLength == 1) {
-        ++pathLength;
-        --stringLength;
-    } else --stringLength;
-
-    if (stringLength == 0) return pathLength;
-}
-
 int getSubstringRange(int stringRange) {
-    if (isPowerOfTwo(stringRange) == 1) return stringRange;
-    --stringRange;
-    getSubstringRange(stringRange);
+    do {
+        --stringRange;
+    } while (isPowerOfTwo(stringRange) == 0);
+    return stringRange;
 }
 
 char *getSubstring(char *string, int range) {
@@ -57,82 +45,34 @@ char *getLeftHalf(char *string, int size) {
     return substring;
 }
 
-void runRightSubProcess(char * string, int range, char * path, int wasSubProcessRunned);
+void createRightProcesses(char* string) ;
 
-void runLeftSubProcess(char * string, int range, char * path, int wasSubProcessRunned) {
-    if (range == 1 && wasSubProcessRunned == 0) {
-    } else if (range == 2) {
-        char* leftSubstring = getLeftHalf(string, range);
-        strcat(path, leftSubstring);
-        strcat(path, " ");
-        char* rightSubstring = getRightHalf(string, range);
-        strcat(path, rightSubstring);
-        printf("%s\n", path);
-    } else {
-        char* leftSubstring = getLeftHalf(string, range);
-        strcat(path, leftSubstring);
-        strcat(path, " ");
-        runLeftSubProcess(leftSubstring, range/2, path, 1);
-        runRightSubProcess(getRightHalf(string, range), range/2, path, 1);
+void createLeftProcesses(char *string) {
+    if (strlen(string) == 1) {
+    }
+    else {
+        char *left = getLeftHalf(string, strlen(string));
+        printf("%s\n", left);
+        createLeftProcesses(left);
+        createRightProcesses(left);
     }
 }
 
-void runRightSubProcess(char * string, int range, char * path, int wasSubProcessRunned) {
-    if (range == 1 && wasSubProcessRunned == 0) {
-
-    } else if (range == 2) {
-        char* leftSubstring = getLeftHalf(string, range);
-        strcat(path, leftSubstring);
-        strcat(path, " ");
-        char* rightSubstring = getRightHalf(string, range);
-        strcat(path, rightSubstring);
-        printf("%s", path);
-    } else {
-        char* rightSubstring = getRightHalf(string, range);
-        strcat(path, rightSubstring);
-        strcat(path, " ");
-        runLeftSubProcess(getLeftHalf(string, range), range/2, path, 1);
-        runRightSubProcess(rightSubstring, range/2, path, 1);
+void createRightProcesses(char* string) {
+    if (strlen(string) == 1) {
+    }
+    else {
+        char *right = getRightHalf(string, strlen(string));
+        printf("%s\n", right);
+        createLeftProcesses(right);
+        createRightProcesses(right);
     }
 }
 
-void runProcess(char *string, int range, char *leftPath, char *rightPath) {
-    if (range == 1) {
-        if (rightPath[strlen(rightPath) - 1] == ' ') {
-            strcat(rightPath, string);
-            printf("cond: %s\n", rightPath);
-            //free(leftPath);
-        } else {
-            strcat(leftPath, string);
-            printf("cond: %s\n", leftPath);
-            //free(rightPath);
-        }
-    } else if (isPowerOfTwo(range) == 1) {
-            strcat(leftPath, string);
-            strcat(leftPath, " ");
-            strcat(rightPath, string);
-            strcat(rightPath, " ");
-                char* leftSubstring = getLeftHalf(string, range);
-                runProcess(leftSubstring, range/2, leftPath, rightPath);
-//                runLeftSubProcess(leftSubstring, range, leftPath, 0);
-//                runRightSubProcess(leftSubstring, range, leftPath, 0);
-                char *rightSubstring = getRightHalf(string, range);
-                runProcess(rightSubstring, range/2, leftPath, rightPath);
-
-//                runLeftSubProcess(rightSubstring, range, rightPath, 0);
-//                runRightSubProcess(rightSubstring, range, rightPath, 0);
-
-    } else {
-        int substringRange = getSubstringRange(range);
-        char *substring = getSubstring(string, substringRange);
-        runProcess(substring, substringRange, leftPath, rightPath);
-        free(substring);
-    }
+void createProcesses(char*string) {
+    createLeftProcesses(string);
+    createRightProcesses(string);
 }
-
-int pathLength;
-char *leftPath;
-char *rightPath;
 
 int main(int argc, char *argv[]) {
 //    if (!argv[1]) {
@@ -140,13 +80,14 @@ int main(int argc, char *argv[]) {
 //        return 1;
 //    } else {
         //char *string = argv[1];
-        char *string = "abcdefgh";
+        char *string = "abcdefghi";
 //        int range = strlen(argv[1]);
-        int range = strlen(string);
-        pathLength = calculatePathLength(range);
-        leftPath = malloc(pathLength * sizeof(char));
-        rightPath = malloc(pathLength * sizeof(char));
-        runProcess(string, range, leftPath, rightPath);
-//    }
+        int range = (int) strlen(string);
+        if (isPowerOfTwo(range) == 0) {
+            char * substring = getSubstring(string, getSubstringRange(range));
+            printf("%s", substring);
+            createProcesses(substring);
+        } else createProcesses(string);
+
     return 0;
 }
