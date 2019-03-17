@@ -70,7 +70,10 @@ void createRightProcesses(char* string) {
 }
 
 void createProcesses(char*string) {
+    printf("Basic string: %s\n\n", string);
+    printf("Left subtree: \n");
     createLeftProcesses(string);
+    printf("Right subtree: \n");
     createRightProcesses(string);
 }
 
@@ -85,7 +88,6 @@ int main(int argc, char *argv[]) {
         int range = (int) strlen(string);
         if (isPowerOfTwo(range) == 0) {
             char * substring = getSubstring(string, getSubstringRange(range));
-            printf("%s", substring);
             createProcesses(substring);
         } else createProcesses(string);
 
