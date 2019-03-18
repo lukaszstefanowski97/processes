@@ -5,6 +5,10 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+char **leftHistory;
+char **rightHistory;
+int range;
+
 void printInputError() {
     printf("This script needs an argument.\nPlease type a string after running .c file.\n");
 }
@@ -43,10 +47,6 @@ char *getLeftHalf(const char *string, int size) {
     }
     return substring;
 }
-
-char **leftHistory;
-char **rightHistory;
-int range;
 
 void saveToHistory(char *string, int side) {
     int i = 0;
@@ -144,7 +144,7 @@ int main(int argc, char *argv[]) {
         return 1;
     } else {
         char *string = argv[1];
-        int range = (int) strlen(argv[1]);
+        range = (int) strlen(argv[1]);
         if (isPowerOfTwo(range) == 0) {
             char *substring = getSubstring(string, getSubstringRange(range));
             setUpEnv(getSubstringRange(range), substring);
