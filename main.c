@@ -21,7 +21,7 @@ int getSubstringRange(int stringRange) {
     return stringRange;
 }
 
-char *getSubstring(char *string, int range) {
+char *getSubstring(const char *string, int range) {
     char *substring = malloc(range * sizeof(char));
     for (int i = 0; i < range; ++i) {
         substring[i] = string[i];
@@ -29,7 +29,7 @@ char *getSubstring(char *string, int range) {
     return substring;
 }
 
-char *getRightHalf(char *string, int size) {
+char *getRightHalf(const char *string, int size) {
     char *substring = malloc(size / 2 * sizeof(char));
     for (int i = size / 2; i < size; ++i) {
         substring[i - size / 2] = string[i];
@@ -37,7 +37,7 @@ char *getRightHalf(char *string, int size) {
     return substring;
 }
 
-char *getLeftHalf(char *string, int size) {
+char *getLeftHalf(const char *string, int size) {
     char *substring = malloc(size / 2 * sizeof(char));
     for (int i = 0; i < size / 2; ++i) {
         substring[i] = string[i];
@@ -45,51 +45,120 @@ char *getLeftHalf(char *string, int size) {
     return substring;
 }
 
-void createRightProcesses(char* string) ;
+char **leftHistory;
+char **rightHistory;
+int range;
 
-void createLeftProcesses(char *string) {
-    if (strlen(string) == 1) {
+void saveToHistory(char *string, int side) {
+    int i = 0;
+    int j = 0;
+    if (side == 1) {
+        while (i < range) {
+            if (rightHistory[i] == "null") {
+                rightHistory[i] = string;
+                break;
+            } else i++;
+        }
+    } else {
+        while (i < range) {
+            if (leftHistory[i] == "null") {
+                leftHistory[i] = string;
+                break;
+            } else i++;
+        }
     }
-    else {
-        char *left = getLeftHalf(string, strlen(string));
+}
+
+void cutRight(char *string, int side);
+
+void cutLeft(char *string, int side) {
+    if (strlen(string) == 1) {
+    } else {
+        char *left = getLeftHalf(string, (int) strlen(string));
+        saveToHistory(left, side);
         printf("%s\n", left);
-        createLeftProcesses(left);
-        createRightProcesses(left);
+        cutLeft(left, side);
+        cutRight(left, side);
     }
 }
 
-void createRightProcesses(char* string) {
+void cutRight(char *string, int side) {
     if (strlen(string) == 1) {
-    }
-    else {
-        char *right = getRightHalf(string, strlen(string));
+    } else {
+        char *right = getRightHalf(string, (int) strlen(string));
         printf("%s\n", right);
-        createLeftProcesses(right);
-        createRightProcesses(right);
+        saveToHistory(right, side);
+        cutLeft(right, side);
+        cutRight(right, side);
     }
 }
 
-void createProcesses(char*string) {
+void initiate(char **array1, char **array2, int size) {
+    for (int i = 0; i < size; i++) {
+        array1[i] = "null";
+        array2[i] = "null";
+    }
+}
+
+void cutStrings(char *string) {
     printf("Basic string: %s\n\n", string);
+    leftHistory[0] = string;
+    rightHistory[0] = string;
     printf("Left subtree: \n");
-    createLeftProcesses(string);
+    cutLeft(string, 0);
     printf("Right subtree: \n");
-    createRightProcesses(string);
+    cutRight(string, 1);
+}
+
+void runProcess(char *string) {
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("brzydko\n");
+        exit(-1);
+    } else if (pid != 0) {
+        printf("\nParent: %d\n", getpid());
+        wait(NULL);
+    } else {
+        printf("Child: %d\n", getpid());
+        execl("/bin/echo", "echo", string, NULL);
+    }
+}
+
+void runProcesses(char **left, char **right, int range) {
+    runProcess(left[0]);
+    for (int i = 1; i < range; i++) {
+        runProcess(left[i]);
+        runProcess(right[i]);
+    }
+}
+
+void setUpEnv(int range, char *string) {
+    leftHistory = malloc((range) * sizeof(char *));
+    rightHistory = malloc((range) * sizeof(char *));
+    initiate(leftHistory, rightHistory, range);
+    cutStrings(string);
 }
 
 int main(int argc, char *argv[]) {
-//    if (!argv[1]) {
-//        printInputError();
-//        return 1;
-//    } else {
-        //char *string = argv[1];
-        char *string = "abcdefghi";
-//        int range = strlen(argv[1]);
-        int range = (int) strlen(string);
+    if (!argv[1]) {
+        printInputError();
+        return 1;
+    } else {
+        char *string = argv[1];
+        int range = (int) strlen(argv[1]);
         if (isPowerOfTwo(range) == 0) {
-            char * substring = getSubstring(string, getSubstringRange(range));
-            createProcesses(substring);
-        } else createProcesses(string);
-
+            char *substring = getSubstring(string, getSubstringRange(range));
+            setUpEnv(getSubstringRange(range), substring);
+            runProcesses(leftHistory, rightHistory, getSubstringRange(range));
+        } else if (range == 1) {
+            setUpEnv(range, string);
+            runProcess(string);
+        } else {
+            setUpEnv(range, string);
+            runProcesses(leftHistory, rightHistory, range);
+        }
+        free(leftHistory);
+        free(rightHistory);
+    }
     return 0;
 }
