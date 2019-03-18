@@ -144,13 +144,12 @@ int main(int argc, char *argv[]) {
         return 1;
     } else {
         char *string = argv[1];
-//        char *string = "abcdefgh";
         int range = (int) strlen(argv[1]);
-//        range = (int) strlen(string);
         if (isPowerOfTwo(range) == 0) {
             char *substring = getSubstring(string, getSubstringRange(range));
             setUpEnv(getSubstringRange(range), substring);
             runProcesses(leftHistory, rightHistory, getSubstringRange(range));
+            free(substring);
         } else if (range == 1) {
             setUpEnv(range, string);
             runProcess(string);
