@@ -15,9 +15,8 @@ int isPowerOfTwo(int number) {
 }
 
 int getSubstringRange(int stringRange) {
-    do {
-        --stringRange;
-    } while (isPowerOfTwo(stringRange) == 0);
+    do --stringRange;
+    while (isPowerOfTwo(stringRange) == 0);
     return stringRange;
 }
 
@@ -145,7 +144,9 @@ int main(int argc, char *argv[]) {
         return 1;
     } else {
         char *string = argv[1];
+//        char *string = "abcdefgh";
         int range = (int) strlen(argv[1]);
+//        range = (int) strlen(string);
         if (isPowerOfTwo(range) == 0) {
             char *substring = getSubstring(string, getSubstringRange(range));
             setUpEnv(getSubstringRange(range), substring);
