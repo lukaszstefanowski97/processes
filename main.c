@@ -100,16 +100,17 @@ void initiate(char **array1, char **array2, int size) {
 }
 
 void cutStrings(char *string) {
-    printf("Basic string: %s\n\n", string);
+    printf("Basic string: %s\n", string);
+    printf("Length: %d\n", (int) strlen(string));
     leftHistory[0] = string;
     rightHistory[0] = string;
-    printf("Left subtree: \n");
+    printf("\nLeft subtree: \n");
     cutLeft(string, 0);
-    printf("Right subtree: \n");
+    printf("\nRight subtree: \n");
     cutRight(string, 1);
 }
 
-void runProcess(char *string) {
+void runProcess(char *string, int isItFirstProcess) {
     pid_t pid = fork();
     if (pid < 0) {
         perror("brzydko\n");
@@ -118,16 +119,16 @@ void runProcess(char *string) {
         printf("\nParent: %d\n", getpid());
         wait(NULL);
     } else {
-        printf("Child: %d\n", getpid());
+        if (isItFirstProcess == 0) printf("Child: %d\n", getpid());
         execl("/bin/echo", "echo", string, NULL);
     }
 }
 
 void runProcesses(char **left, char **right, int range) {
-    runProcess(left[0]);
+    runProcess(left[0], 1);
     for (int i = 1; i < range; i++) {
-        runProcess(left[i]);
-        runProcess(right[i]);
+        runProcess(left[i], 0);
+        runProcess(right[i], 0);
     }
 }
 
@@ -152,13 +153,13 @@ int main(int argc, char *argv[]) {
             free(substring);
         } else if (range == 1) {
             setUpEnv(range, string);
-            runProcess(string);
+            runProcess(string, 1);
         } else {
             setUpEnv(range, string);
             runProcesses(leftHistory, rightHistory, range);
         }
         free(leftHistory);
         free(rightHistory);
-    }
+//    }
     return 0;
 }
