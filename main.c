@@ -50,7 +50,6 @@ char *getLeftHalf(const char *string, int size) {
 
 void saveToHistory(char *string, int side) {
     int i = 0;
-    int j = 0;
     if (side == 1) {
         while (i < range) {
             if (rightHistory[i] == "null") {
