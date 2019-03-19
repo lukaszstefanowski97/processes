@@ -110,17 +110,41 @@ void cutStrings(char *string) {
     cutRight(string, 1);
 }
 
+void printString(char *string, int pid) {
+    printf("\n%d ", pid);
+    fflush(stdout);
+    printf("%s ", leftHistory[0]);
+    fflush(stdout);
+    for (int i = 1; i < range; i++) {
+        if(strstr(leftHistory[i], string) != NULL) {
+            printf("%s ", leftHistory[i]);
+            fflush(stdout);
+            if (leftHistory[i] == string) break;
+        }
+        if(strstr(rightHistory[i], string) != NULL) {
+            printf("%s ", rightHistory[i]);
+            fflush(stdout);
+            if (rightHistory[i] == string) break;
+        }
+    }
+}
+
 void runProcess(char *string, int isItFirstProcess) {
     pid_t pid = fork();
     if (pid < 0) {
         perror("brzydko\n");
         exit(-1);
     } else if (pid != 0) {
-        printf("\nParent: %d\n", getpid());
+        if (isItFirstProcess == 1) {
+            printf("\n%d %s", getpid(), string);
+            fflush(stdout);
+        }
         wait(NULL);
     } else {
-        if (isItFirstProcess == 0) printf("Child: %d\n", getpid());
-        execl("/bin/echo", "echo", string, NULL);
+        if (isItFirstProcess == 0) {
+            printString(string, getpid());
+        }
+        execl("/bin/echo", "echo", " ", NULL);
     }
 }
 
@@ -140,12 +164,12 @@ void setUpEnv(int range, char *string) {
 }
 
 int main(int argc, char *argv[]) {
-    if (!argv[1]) {
-        printInputError();
-        return 1;
-    } else {
-        char *string = argv[1];
-        range = (int) strlen(argv[1]);
+//    if (!argv[1]) {
+//        printInputError();
+//        return 1;
+//    } else {
+        char *string = "abcdefghi";
+        range = (int) strlen(string);
         if (isPowerOfTwo(range) == 0) {
             char *substring = getSubstring(string, getSubstringRange(range));
             setUpEnv(getSubstringRange(range), substring);
