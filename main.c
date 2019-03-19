@@ -116,12 +116,12 @@ void printString(char *string, int pid) {
     printf("%s ", leftHistory[0]);
     fflush(stdout);
     for (int i = 1; i < range; i++) {
-        if(strstr(leftHistory[i], string) != NULL) {
+        if (strstr(leftHistory[i], string)) {
             printf("%s ", leftHistory[i]);
             fflush(stdout);
             if (leftHistory[i] == string) break;
         }
-        if(strstr(rightHistory[i], string) != NULL) {
+        if (strstr(rightHistory[i], string)) {
             printf("%s ", rightHistory[i]);
             fflush(stdout);
             if (rightHistory[i] == string) break;
@@ -164,11 +164,11 @@ void setUpEnv(int range, char *string) {
 }
 
 int main(int argc, char *argv[]) {
-//    if (!argv[1]) {
-//        printInputError();
-//        return 1;
-//    } else {
-        char *string = "abcdefghi";
+    if (!argv[1]) {
+        printInputError();
+        return 1;
+    } else {
+        char *string = argv[1];
         range = (int) strlen(string);
         if (isPowerOfTwo(range) == 0) {
             char *substring = getSubstring(string, getSubstringRange(range));
@@ -184,6 +184,6 @@ int main(int argc, char *argv[]) {
         }
         free(leftHistory);
         free(rightHistory);
-//    }
+    }
     return 0;
 }
